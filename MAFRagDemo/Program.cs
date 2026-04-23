@@ -2,28 +2,25 @@
 using MAFRagDemo;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
-using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel.Connectors.InMemory;
-using Microsoft.SemanticKernel.Connectors.SqliteVec;
 using OllamaSharp;
 #pragma warning disable SKEXP0130
 
-var ollamaSharClient = new OllamaApiClient("http://127.0.0.1:11434", "qwen3.5:4b");
+var ollamaSharClient = new OllamaApiClient("https://www-dev.h603f1ec4.nyat.app:28367", "qwen3.5:4b");
 
 // 知识库声明信息11
 var db = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "db.sqlite");
 
 
-
 var store = new InMemoryVectorStore(new()
 {
-    EmbeddingGenerator = new OllamaApiClient("http://127.0.0.1:11434", "bge-m3:latest")
+    EmbeddingGenerator = new OllamaApiClient("https://www-dev.h603f1ec4.nyat.app:28367", "bge-m3:latest")
 });
 var collection = store.GetCollection<Guid, Model>("base");
 await collection.EnsureCollectionDeletedAsync();
 await collection.EnsureCollectionExistsAsync();
 
-var rrt = new OllamaApiClient("http://127.0.0.1:11434", "bge-m3:latest");
+var rrt = new OllamaApiClient("https://www-dev.h603f1ec4.nyat.app:28367", "bge-m3:latest");
 
 // 插入数据
 var markdow = await File.ReadAllLinesAsync("AML.md");
@@ -72,6 +69,8 @@ var agent = ollamaSharClient.AsAIAgent(
     {
         AIContextProviders = [new TextSearchProvider(SearchAdapter, textSearchOptions)]
     });
+
+var session = await agent.CreateSessionAsync();
 var runOptions = new AgentRunOptions()
 {
     AdditionalProperties = new AdditionalPropertiesDictionary()
@@ -79,7 +78,21 @@ var runOptions = new AgentRunOptions()
         ["think"] = false
     }
 };
-await foreach (var result in agent.RunStreamingAsync("介绍下AML", options: runOptions))
+
+while (true)
 {
-    Console.Write(result);
+    Console.Write("User：");
+    var input = Console.ReadLine();
+
+    var chatMessage = new ChatMessage(ChatRole.User, [
+        new TextContent(input)
+    ]);
+
+    Console.WriteLine("Agent：");
+    await foreach (var result in agent.RunStreamingAsync(chatMessage, session: session,options: runOptions))
+    {
+        Console.Write(result);
+    }
+    Console.Write("\n");
 }
+
