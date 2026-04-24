@@ -11,7 +11,6 @@ var ollamaSharClient = new OllamaApiClient("https://www-dev.h603f1ec4.nyat.app:2
 // 知识库声明信息11
 var db = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "db.sqlite");
 
-
 var store = new InMemoryVectorStore(new()
 {
     EmbeddingGenerator = new OllamaApiClient("https://www-dev.h603f1ec4.nyat.app:28367", "bge-m3:latest")

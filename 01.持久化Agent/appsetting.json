@@ -1,0 +1,7 @@
+{
+  "zhipu": {
+    "EndPoint": "https://open.bigmodel.cn/api/paas/v4",
+    "ApiKey": "6c718d71ffe50ab6072dee8edb092704.BxzqSE4U0s2hDNvT",
+    "ModelId": "GLM-4.7-Flash"
+  }
+}
