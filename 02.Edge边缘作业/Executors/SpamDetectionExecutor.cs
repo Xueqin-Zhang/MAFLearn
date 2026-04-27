@@ -16,15 +16,14 @@ internal class SpamDetectionExecutor : Executor<string, DetectionReslt> {
 
     public override async ValueTask<DetectionReslt> HandleAsync(string message, IWorkflowContext context, CancellationToken cancellationToken = default)
     {
-        await context.YieldOutputAsync("开始邮件类型判断");
+        await context.YieldOutputAsync("------------------------------------------------");
+        await context.YieldOutputAsync("Step1：开始邮件类型判断");
         var newEnail = new
         {
             EmailId = Guid.NewGuid().ToString("N"),
             EmailContent = message
         };
-
         await context.QueueStateUpdateAsync(newEnail.EmailId, newEnail, scopeName: "State", cancellationToken);
-
         var result = await _assistantAiAgent.RunAsync<DetectionReslt>(message);
         result.Result.EmailId = newEnail.EmailId;
         return result.Result;
